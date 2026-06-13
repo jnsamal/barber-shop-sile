@@ -10,7 +10,10 @@ A brutalist-style single-page website for a premium men's grooming parlour. Buil
 
 ## 📸 Screenshots
 
-> *Add screenshots of the hero section, services grid, and pricing table here.*
+> ![image alt](https://github.com/jnsamal/barber-shop-sile/blob/a4f0ee4b687aceb049ce3d3883f18cd7ac5f5f8e/Screenshot%20(91).png)
+> ![image alt](https://github.com/jnsamal/barber-shop-sile/blob/a4f0ee4b687aceb049ce3d3883f18cd7ac5f5f8e/Screenshot%20(92).png)
+> ![image alt](https://github.com/jnsamal/barber-shop-sile/blob/a4f0ee4b687aceb049ce3d3883f18cd7ac5f5f8e/Screenshot%20(93).png)
+> ![image alt](https://github.com/jnsamal/barber-shop-sile/blob/a4f0ee4b687aceb049ce3d3883f18cd7ac5f5f8e/Screenshot%20(94).png)
 
 ---
 
