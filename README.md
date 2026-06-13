@@ -37,4 +37,4 @@ Nothing. Just a modern web browser.
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/jnsamal/iron-and-blade.git
+   git clone https://github.com/jnsamal/barber-shop-site/
