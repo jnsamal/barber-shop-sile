@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IRON & BLADE — Men's Grooming Parlour</title>
+    <style>
+        :root {
+            --black: #0a0a0a;
+            --white: #f5f4f0;
+            --accent: #e8332c;
+            --accent-glow: #ff3b30;
+            --gray: #b0ada6;
+            --light-gray: #d9d6cf;
+            --border-width: 4px;
+            --border-heavy: 6px;
+            --font-mono: 'Courier New', 'IBM Plex Mono', 'Fira Code', monospace;
+            --font-sans: 'Helvetica Neue', 'Arial Black', 'Impact', sans-serif;
+            --gap: 1.5rem;
+            --section-pad: clamp(3rem, 8vw, 7rem);
+        }
+
+        /* Reset */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 80px;
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--white);
+            color: var(--black);
+            font-family: var(--font-sans);
+            line-height: 1.3;
+            overflow-x: hidden;
+            cursor: default;
+            /* Subtle concrete texture */
+            background-image:
+                radial-gradient(circle at 20% 80%, rgba(0, 0, 0, 0.02) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 0, 0, 0.02) 0%, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        /* ============ CUSTOM CURSOR ============ */
+        .custom-cursor {
+            position: fixed;
+            width: 24px;
+            height: 24px;
+            border: 3px solid var(--black);
+            border-radius: 0;
+            pointer-events: none;
+            z-index: 9999;
+            transition: width 0.2s, height 0.2s, background-color 0.2s, border-color 0.2s;
+            mix-blend-mode: difference;
+            transform: translate(-50%, -50%);
+            background: transparent;
+        }
+        .custom-cursor.hovering {
+            width: 48px;
+            height: 48px;
+            background: var(--accent);
+            border-color: var(--accent);
+            mix-blend-mode: normal;
+        }
+        .custom-cursor.clicking {
+            width: 16px;
+            height: 16px;
+            background: var(--black);
+            border-color: var(--black);
+        }
+        @media (max-width: 768px) {
+            .custom-cursor {
+                display: none;
+            }
+        }
+
+        /* ============ NAVIGATION ============ */
+        .nav {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: var(--white);
+            border-bottom: var(--border-heavy) solid var(--black);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem var(--gap);
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            transition: background 0.3s;
+        }
+        .nav.scrolled {
+            background: var(--black);
+            border-bottom-color: var(--white);
+        }
+        .nav.scrolled .nav__brand,
+        .nav.scrolled .nav__link,
+        .nav.scrolled .nav__toggle span {
+            color: var(--white);
+        }
+        .nav.scrolled .nav__toggle span {
+            background: var(--white);
+        }
+        .nav__brand {
+            font-family: var(--font-mono);
+            font-size: 1.6rem;
+            font-weight: 900;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            text-decoration: none;
+            color: var(--black);
+            line-height: 1;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .nav__brand-icon {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            background: var(--accent);
+            border: 3px solid var(--black);
+            flex-shrink: 0;
+        }
+        .nav.scrolled .nav__brand-icon {
+            border-color: var(--white);
+        }
+        .nav__links {
+            display: flex;
+            list-style: none;
+            gap: 0.3rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .nav__link {
+            font-family: var(--font-mono);
+            text-decoration: none;
+            color: var(--black);
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 0.5rem 1rem;
+            border: 3px solid transparent;
+            transition: all 0.2s;
+            position: relative;
+            white-space: nowrap;
+        }
+        .nav__link:hover,
+        .nav__link:focus-visible {
+            border-color: var(--black);
+            background: var(--black);
+            color: var(--white);
+            outline: none;
+        }
+        .nav.scrolled .nav__link:hover,
+        .nav.scrolled .nav__link:focus-visible {
+            border-color: var(--white);
+            background: var(--white);
+            color: var(--black);
+        }
+        .nav__link--cta {
+            background: var(--accent) !important;
+            border-color: var(--black) !important;
+            color: var(--white) !important;
+            font-weight: 900;
+        }
+        .nav.scrolled .nav__link--cta {
+            border-color: var(--white) !important;
+            background: var(--accent) !important;
+            color: var(--white) !important;
+        }
+        .nav__link--cta:hover {
+            background: var(--black) !important;
+            color: var(--white) !important;
+            border-color: var(--black) !important;
+        }
+        .nav.scrolled .nav__link--cta:hover {
+            background: var(--white) !important;
+            color: var(--black) !important;
+            border-color: var(--white) !important;
+        }
+        /* Mobile menu toggle */
+        .nav__toggle {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            cursor: pointer;
+            padding: 8px;
+            border: 3px solid var(--black);
+            background: transparent;
+            transition: border-color 0.3s;
+        }
+        .nav__toggle span {
+            display: block;
+            width: 26px;
+            height: 3px;
+            background: var(--black);
+            transition: all 0.3s;
+        }
+        .nav.scrolled .nav__toggle {
+            border-color: var(--white);
+        }
+        .nav__toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        .nav__toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+        .nav__toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+        @media (max-width: 850px) {
+            .nav__toggle {
+                display: flex;
+            }
+            .nav__links {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                gap: 0;
+                padding-top: 0.5rem;
+            }
+            .nav__links.open {
+                display: flex;
+            }
+            .nav__link {
+                width: 100%;
+                text-align: center;
+                padding: 0.8rem;
+                font-size: 1rem;
+                border-width: 3px;
+                border-color: var(--black);
+                margin-bottom: 2px;
+            }
+            .nav.scrolled .nav__link {
+                border-color: rgba(255, 255, 255, 0.5);
+            }
+        }
+
+        /* ============ HERO ============ */
+        .hero {
+            position: relative;
+            min-height: 90vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--section-pad) var(--gap);
+            background: var(--white);
+            overflow: hidden;
+            border-bottom: var(--border-heavy) solid var(--black);
+        }
+        .hero__grid-bg {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background-image:
+                linear-gradient(to right, rgba(0, 0, 0, 0.06) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 0, 0, 0.06) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+        .hero__content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-width: 900px;
+        }
+        .hero__overline {
+            font-family: var(--font-mono);
+            font-size: clamp(0.75rem, 1.5vw, 0.9rem);
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--accent);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: block;
+            border: 3px solid var(--accent);
+            display: inline-block;
+            padding: 0.4rem 1.2rem;
+            background: var(--white);
+        }
+        .hero__title {
+            font-size: clamp(3rem, 10vw, 8rem);
+            font-weight: 900;
+            line-height: 0.9;
+            text-transform: uppercase;
+            letter-spacing: -0.03em;
+            margin: 0.5rem 0;
+            color: var(--black);
+            word-break: break-word;
+        }
+        .hero__title span {
+            display: inline-block;
+            background: var(--accent);
+            color: var(--white);
+            padding: 0 0.15em;
+            border: var(--border-heavy) solid var(--black);
+            margin: 0 0.05em;
+        }
+        .hero__subtitle {
+            font-family: var(--font-mono);
+            font-size: clamp(1rem, 2.5vw, 1.5rem);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-top: 1.5rem;
+            color: var(--black);
+            font-weight: 400;
+            border-top: 3px solid var(--black);
+            border-bottom: 3px solid var(--black);
+            display: inline-block;
+            padding: 0.7rem 1.5rem;
+        }
+        .hero__cta-group {
+            margin-top: 2.5rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .btn {
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 1rem 2rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.2s;
+            border: var(--border-heavy) solid var(--black);
+            position: relative;
+            background: var(--white);
+            color: var(--black);
+            text-align: center;
+            white-space: nowrap;
+        }
+        .btn--primary {
+            background: var(--accent);
+            color: var(--white);
+            border-color: var(--black);
+            box-shadow: 8px 8px 0 var(--black);
+        }
+        .btn--primary:hover {
+            background: var(--black);
+            color: var(--white);
+            box-shadow: 4px 4px 0 var(--black);
+            transform: translate(4px, 4px);
+        }
+        .btn--outline {
+            background: transparent;
+            border-color: var(--black);
+            color: var(--black);
+            box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.15);
+        }
+        .btn--outline:hover {
+            background: var(--black);
+            color: var(--white);
+            box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.3);
+            transform: translate(4px, 4px);
+        }
+        .hero__decor {
+            position: absolute;
+            z-index: 1;
+            pointer-events: none;
+        }
+        .hero__decor--left {
+            left: clamp(1rem, 5vw, 4rem);
+            top: 25%;
+            width: clamp(60px, 12vw, 140px);
+            height: clamp(60px, 12vw, 140px);
+            border: var(--border-heavy) solid var(--black);
+            background: transparent;
+            transform: rotate(12deg);
+        }
+        .hero__decor--right {
+            right: clamp(1rem, 5vw, 4rem);
+            bottom: 20%;
+            width: clamp(40px, 8vw, 90px);
+            height: clamp(40px, 8vw, 90px);
+            background: var(--accent);
+            border: var(--border-heavy) solid var(--black);
+            transform: rotate(-8deg);
+        }
+        @media (max-width: 600px) {
+            .hero__decor {
+                display: none;
+            }
+            .hero {
+                min-height: 70vh;
+                padding: 4rem var(--gap);
+            }
+        }
+
+        /* ============ SECTION HEADERS ============ */
+        .section-header {
+            text-align: center;
+            padding: var(--section-pad) var(--gap) 2rem;
+        }
+        .section-header__tag {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--accent);
+            font-weight: 700;
+            display: inline-block;
+            padding: 0.3rem 1rem;
+            border: 3px solid var(--accent);
+            margin-bottom: 1rem;
+        }
+        .section-header__title {
+            font-size: clamp(2rem, 6vw, 4rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            line-height: 1;
+            color: var(--black);
+        }
+        .section-header__title span {
+            background: var(--black);
+            color: var(--white);
+            padding: 0 0.2em;
+        }
+
+        /* ============ SERVICES ============ */
+        .services {
+            padding: 0 var(--gap) var(--section-pad);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .services__grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: var(--gap);
+        }
+        .service-card {
+            border: var(--border-heavy) solid var(--black);
+            padding: 2rem 1.5rem;
+            background: var(--white);
+            transition: all 0.25s;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.08);
+        }
+        .service-card:hover {
+            background: var(--black);
+            color: var(--white);
+            box-shadow: 10px 10px 0 var(--accent);
+            transform: translate(-3px, -3px);
+        }
+        .service-card:hover .service-card__icon {
+            background: var(--accent);
+            border-color: var(--white);
+        }
+        .service-card:hover .service-card__name {
+            color: var(--white);
+        }
+        .service-card:hover .service-card__desc {
+            color: var(--light-gray);
+        }
+        .service-card:hover .service-card__price {
+            color: var(--accent-glow);
+        }
+        .service-card__icon {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--black);
+            background: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            transition: all 0.25s;
+        }
+        .service-card__name {
+            font-size: 1.3rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            transition: color 0.25s;
+            color: var(--black);
+        }
+        .service-card__desc {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: #555;
+            flex-grow: 1;
+            transition: color 0.25s;
+        }
+        .service-card__price {
+            font-family: var(--font-mono);
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: var(--accent);
+            letter-spacing: 0.04em;
+            transition: color 0.25s;
+        }
+
+        /* ============ PRICING TABLE ============ */
+        .pricing {
+            background: var(--black);
+            color: var(--white);
+            padding: var(--section-pad) var(--gap);
+            border-top: var(--border-heavy) solid var(--accent);
+            border-bottom: var(--border-heavy) solid var(--accent);
+        }
+        .pricing .section-header__tag {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--black);
+        }
+        .pricing .section-header__title {
+            color: var(--white);
+        }
+        .pricing .section-header__title span {
+            background: var(--accent);
+            color: var(--black);
+        }
+        .pricing__table-wrap {
+            max-width: 800px;
+            margin: 3rem auto 0;
+            overflow-x: auto;
+            border: var(--border-heavy) solid var(--white);
+        }
+        .pricing__table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: var(--font-mono);
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .pricing__table th,
+        .pricing__table td {
+            padding: 1rem 1.5rem;
+            border: 3px solid rgba(255, 255, 255, 0.25);
+            text-align: left;
+            vertical-align: middle;
+        }
+        .pricing__table th {
+            background: var(--accent);
+            color: var(--black);
+            font-weight: 900;
+            font-size: 1rem;
+            letter-spacing: 0.08em;
+            border-color: var(--accent);
+        }
+        .pricing__table tr {
+            transition: background 0.2s;
+        }
+        .pricing__table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.06);
+        }
+        .pricing__table .price-col {
+            text-align: right;
+            font-weight: 900;
+            font-size: 1.2rem;
+            color: var(--accent-glow);
+            white-space: nowrap;
+        }
+        .pricing__note {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            letter-spacing: 0.06em;
+            color: var(--gray);
+            text-transform: uppercase;
+        }
+
+        /* ============ ABOUT / PHILOSOPHY ============ */
+        .about {
+            padding: var(--section-pad) var(--gap);
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: start;
+        }
+        .about__visual {
+            border: var(--border-heavy) solid var(--black);
+            aspect-ratio: 1 / 1;
+            background: var(--light-gray);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 12px 12px 0 var(--accent);
+        }
+        .about__visual-inner {
+            font-family: var(--font-mono);
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 900;
+            color: var(--black);
+            opacity: 0.2;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            user-select: none;
+            text-align: center;
+            line-height: 0.8;
+        }
+        .about__text {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .about__text h3 {
+            font-size: clamp(1.5rem, 3.5vw, 2.5rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            line-height: 1;
+        }
+        .about__text p {
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            line-height: 1.7;
+            color: #444;
+        }
+        .about__stats {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+        .about__stat {
+            border: 4px solid var(--black);
+            padding: 1rem 1.3rem;
+            text-align: center;
+            min-width: 80px;
+            background: var(--white);
+            box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.1);
+        }
+        .about__stat-num {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--accent);
+            line-height: 1;
+        }
+        .about__stat-label {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-top: 0.3rem;
+            color: #555;
+        }
+        @media (max-width: 768px) {
+            .about {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            .about__visual {
+                aspect-ratio: 3/2;
+                box-shadow: 8px 8px 0 var(--accent);
+            }
+        }
+
+        /* ============ GALLERY STRIP ============ */
+        .gallery-strip {
+            display: flex;
+            border-top: var(--border-heavy) solid var(--black);
+            border-bottom: var(--border-heavy) solid var(--black);
+            overflow: hidden;
+        }
+        .gallery-strip__item {
+            flex: 1;
+            min-width: 140px;
+            aspect-ratio: 1 / 1;
+            border-right: 4px solid var(--black);
+            background: var(--light-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #888;
+            transition: all 0.3s;
+            cursor: default;
+            position: relative;
+            overflow: hidden;
+        }
+        .gallery-strip__item:last-child {
+            border-right: none;
+        }
+        .gallery-strip__item:hover {
+            background: var(--accent);
+            color: var(--white);
+            flex: 1.6;
+            font-weight: 900;
+            font-size: 0.85rem;
+            letter-spacing: 0.15em;
+        }
+        .gallery-strip__item::after {
+            content: '';
+            position: absolute;
+            inset: 8px;
+            border: 3px solid transparent;
+            transition: border-color 0.3s;
+            pointer-events: none;
+        }
+        .gallery-strip__item:hover::after {
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+        @media (max-width: 600px) {
+            .gallery-strip {
+                flex-wrap: wrap;
+            }
+            .gallery-strip__item {
+                flex: 1 1 30%;
+                min-width: 100px;
+                aspect-ratio: 1/1;
+                border-bottom: 4px solid var(--black);
+            }
+        }
+
+        /* ============ CTA BANNER ============ */
+        .cta-banner {
+            padding: var(--section-pad) var(--gap);
+            text-align: center;
+            background: var(--white);
+            position: relative;
+            overflow: hidden;
+        }
+        .cta-banner__bg-text {
+            position: absolute;
+            font-size: clamp(5rem, 18vw, 16rem);
+            font-weight: 900;
+            color: rgba(0, 0, 0, 0.03);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            pointer-events: none;
+            user-select: none;
+            white-space: nowrap;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+            line-height: 1;
+        }
+        .cta-banner__content {
+            position: relative;
+            z-index: 2;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .cta-banner h2 {
+            font-size: clamp(2rem, 6vw, 3.5rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            line-height: 1;
+            margin-bottom: 1rem;
+        }
+        .cta-banner p {
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            color: #444;
+            line-height: 1.6;
+        }
+        .cta-banner .btn {
+            font-size: 1.2rem;
+            padding: 1.2rem 2.5rem;
+        }
+
+        /* ============ FOOTER ============ */
+        .footer {
+            background: var(--black);
+            color: var(--white);
+            padding: var(--section-pad) var(--gap) 2rem;
+            border-top: var(--border-heavy) solid var(--accent);
+        }
+        .footer__grid {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 2.5rem;
+        }
+        .footer__col h4 {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-bottom: 1rem;
+            color: var(--accent);
+            font-weight: 900;
+            border-bottom: 3px solid var(--accent);
+            display: inline-block;
+            padding-bottom: 0.4rem;
+        }
+        .footer__col p,
+        .footer__col li {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            line-height: 1.8;
+            color: var(--light-gray);
+        }
+        .footer__col ul {
+            list-style: none;
+        }
+        .footer__col a {
+            color: var(--light-gray);
+            text-decoration: none;
+            transition: color 0.2s;
+            border-bottom: 2px solid transparent;
+        }
+        .footer__col a:hover {
+            color: var(--accent-glow);
+            border-bottom-color: var(--accent);
+        }
+        .footer__bottom {
+            max-width: 1100px;
+            margin: 3rem auto 0;
+            padding-top: 1.5rem;
+            border-top: 3px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            letter-spacing: 0.06em;
+            color: var(--gray);
+            text-transform: uppercase;
+        }
+        .footer__brand {
+            font-size: 2rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--white);
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+
+        /* ============ BRUTALIST DIVIDER ============ */
+        .divider {
+            height: 12px;
+            background: repeating-linear-gradient(90deg,
+                    var(--black) 0px,
+                    var(--black) 20px,
+                    var(--accent) 20px,
+                    var(--accent) 40px);
+            border: none;
+        }
+
+        /* ============ MODAL / BOOKING OVERLAY ============ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9990;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal {
+            background: var(--white);
+            border: var(--border-heavy) solid var(--black);
+            padding: 2.5rem 2rem;
+            max-width: 550px;
+            width: 100%;
+            position: relative;
+            box-shadow: 16px 16px 0 var(--accent);
+            text-align: center;
+        }
+        .modal__close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            font-size: 2rem;
+            cursor: pointer;
+            font-weight: 900;
+            color: var(--black);
+            background: none;
+            border: none;
+            line-height: 1;
+            transition: color 0.2s;
+            font-family: var(--font-mono);
+        }
+        .modal__close:hover {
+            color: var(--accent);
+        }
+        .modal h3 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            margin-bottom: 1.5rem;
+        }
+        .modal .form-group {
+            margin-bottom: 1.2rem;
+            text-align: left;
+        }
+        .modal label {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            display: block;
+            margin-bottom: 0.3rem;
+        }
+        .modal input,
+        .modal select {
+            width: 100%;
+            padding: 0.9rem 1rem;
+            border: 4px solid var(--black);
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            background: var(--white);
+            transition: border-color 0.2s;
+            border-radius: 0;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        .modal input:focus,
+        .modal select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.15);
+        }
+        .modal .btn {
+            width: 100%;
+            margin-top: 0.5rem;
+            font-size: 1.1rem;
+        }
+        .modal__success {
+            display: none;
+            padding: 2rem 1rem;
+            text-align: center;
+        }
+        .modal__success.show {
+            display: block;
+        }
+        .modal__success .check-icon {
+            font-size: 4rem;
+            display: block;
+            margin-bottom: 1rem;
+        }
+        .modal__success p {
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        /* ============ ANIMATIONS ============ */
+        @keyframes brutalfade {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-in {
+            animation: brutalfade 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ============ SELECTION STYLE ============ */
+        ::selection {
+            background: var(--accent);
+            color: var(--white);
+        }
+
+        /* ============ FOCUS VISIBLE ============ */
+        :focus-visible {
+            outline: 4px solid var(--accent);
+            outline-offset: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Custom Cursor -->
+    <div class="custom-cursor" id="customCursor" aria-hidden="true"></div>
+
+    <!-- Navigation -->
+    <nav class="nav" id="navbar">
+        <a href="#" class="nav__brand">
+            <span class="nav__brand-icon"></span>
+            IRON & BLADE
+        </a>
+        <button class="nav__toggle" id="navToggle" aria-label="Toggle navigation menu">
+            <span></span><span></span><span></span>
+        </button>
+        <ul class="nav__links" id="navLinks">
+            <li><a href="#services" class="nav__link">Services</a></li>
+            <li><a href="#pricing" class="nav__link">Pricing</a></li>
+            <li><a href="#about" class="nav__link">Philosophy</a></li>
+            <li><a href="#cta" class="nav__link nav__link--cta">Book Now</a></li>
+        </ul>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero" id="hero">
+        <div class="hero__grid-bg"></div>
+        <div class="hero__decor hero__decor--left"></div>
+        <div class="hero__decor hero__decor--right"></div>
+        <div class="hero__content">
+            <span class="hero__overline">Est. 2018 &mdash; London</span>
+            <h1 class="hero__title">
+                Raw<br><span>Grooming</span><br>Sharp Results
+            </h1>
+            <p class="hero__subtitle">Not a salon. A grooming stronghold.</p>
+            <div class="hero__cta-group">
+                <a href="#cta" class="btn btn--primary">Book a Cut</a>
+                <a href="#services" class="btn btn--outline">Explore Services</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services -->
+    <section class="section-header" id="services">
+        <span class="section-header__tag">What We Do</span>
+        <h2 class="section-header__title">Services <span>&</span> Rituals</h2>
+    </section>
+    <section class="services">
+        <div class="services__grid">
+            <article class="service-card reveal-on-scroll">
+                <div class="service-card__icon">✂️</div>
+                <h3 class="service-card__name">Signature Haircut</h3>
+                <p class="service-card__desc">Precision scissor & clipper work. Consultation included. Hot towel finish.</p>
+                <span class="service-card__price">£48</span>
+            </article>
+            <article class="service-card reveal-on-scroll">
+                <div class="service-card__icon">🪒</div>
+                <h3 class="service-card__name">Hot Towel Shave</h3>
+                <p class="service-card__desc">Traditional straight-razor shave with steamed towels, pre-shave oil & balm.</p>
+                <span class="service-card__price">£42</span>
+            </article>
+            <article class="service-card reveal-on-scroll">
+                <div class="service-card__icon">🧔</div>
+                <h3 class="service-card__name">Beard Sculpting</h3>
+                <p class="service-card__desc">Shape, trim & condition. Bespoke to your face structure and growth pattern.</p>
+                <span class="service-card__price">£35</span>
+            </article>
+            <article class="service-card reveal-on-scroll">
+                <div class="service-card__icon">💆</div>
+                <h3 class="service-card__name">Deep Cleansing Facial</h3>
+                <p class="service-card__desc">Extraction, exfoliation & hydration. For men who understand skin is an asset.</p>
+                <span class="service-card__price">£65</span>
+            </article>
+            <article class="service-card reveal-on-scroll">
+                <div class="service-card__icon">💅</div>
+                <h3 class="service-card__name">Manicure &amp; Pedicure</h3>
+                <p class="service-card__desc">Clean, buffed, maintained. No polish unless requested. Discreet & efficient.</p>
+                <span class="service-card__price">£55</span>
+            </article>
+            <article class="service-card reveal-on-scroll">
+                <div class="service-card__icon">🎨</div>
+                <h3 class="service-card__name">Grey Blending</h3>
+                <p class="service-card__desc">Natural-looking colour work. Subtle. Nobody will know — they'll just notice.</p>
+                <span class="service-card__price">£58</span>
+            </article>
+            <article class="service-card reveal-on-scroll">
+                <div class="service-card__icon">🌿</div>
+                <h3 class="service-card__name">Scalp Treatment</h3>
+                <p class="service-card__desc">Exfoliating scrub & nourishing mask. Stimulates follicles, relieves dryness.</p>
+                <span class="service-card__price">£40</span>
+            </article>
+            <article class="service-card reveal-on-scroll">
+                <div class="service-card__icon">👁️</div>
+                <h3 class="service-card__name">Brow Grooming</h3>
+                <p class="service-card__desc">Tweeze, trim & define. Sharpens the architecture of your face.</p>
+                <span class="service-card__price">£22</span>
+            </article>
+        </div>
+    </section>
+
+    <!-- Divider -->
+    <hr class="divider">
+
+    <!-- Pricing -->
+    <section class="pricing" id="pricing">
+        <div class="section-header">
+            <span class="section-header__tag">Transparent Pricing</span>
+            <h2 class="section-header__title">The <span>Ledger</span></h2>
+        </div>
+        <div class="pricing__table-wrap">
+            <table class="pricing__table">
+                <thead>
+                    <tr>
+                        <th>Service</th>
+                        <th>Duration</th>
+                        <th class="price-col">Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Signature Haircut</td>
+                        <td>45 min</td>
+                        <td class="price-col">£48</td>
+                    </tr>
+                    <tr>
+                        <td>Hot Towel Shave</td>
+                        <td>40 min</td>
+                        <td class="price-col">£42</td>
+                    </tr>
+                    <tr>
+                        <td>Beard Sculpting</td>
+                        <td>30 min</td>
+                        <td class="price-col">£35</td>
+                    </tr>
+                    <tr>
+                        <td>Haircut + Beard Combo</td>
+                        <td>60 min</td>
+                        <td class="price-col">£72</td>
+                    </tr>
+                    <tr>
+                        <td>Deep Cleansing Facial</td>
+                        <td>55 min</td>
+                        <td class="price-col">£65</td>
+                    </tr>
+                    <tr>
+                        <td>Manicure & Pedicure</td>
+                        <td>50 min</td>
+                        <td class="price-col">£55</td>
+                    </tr>
+                    <tr>
+                        <td>Grey Blending</td>
+                        <td>50 min</td>
+                        <td class="price-col">£58</td>
+                    </tr>
+                    <tr>
+                        <td>The Full Works Package</td>
+                        <td>120 min</td>
+                        <td class="price-col">£145</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="pricing__note">All prices inclusive. Walk-ins welcome but appointments get priority.</p>
+    </section>
+
+    <!-- About / Philosophy -->
+    <section class="about" id="about">
+        <div class="about__visual reveal-on-scroll">
+            <div class="about__visual-inner">I&B</div>
+        </div>
+        <div class="about__text reveal-on-scroll">
+            <span class="section-header__tag" style="align-self:flex-start;">Our Philosophy</span>
+            <h3>Grooming Is<br>Self-Respect</h3>
+            <p>
+                We don't do fluff. We don't do gimmicks. IRON & BLADE exists because men deserve
+                a space that's honest, unfussy, and exceptionally skilled. Raw concrete floors.
+                Exposed steel. The best barbers and aestheticians in the city. No pretence — just
+                precision.
+            </p>
+            <p>
+                Every service starts with a consultation. Every product we use is chosen for
+                performance, not packaging. We believe grooming should feel like maintenance for
+                a high-performance machine — because that's what you are.
+            </p>
+            <div class="about__stats">
+                <div class="about__stat">
+                    <div class="about__stat-num">6+</div>
+                    <div class="about__stat-label">Years Active</div>
+                </div>
+                <div class="about__stat">
+                    <div class="about__stat-num">12k+</div>
+                    <div class="about__stat-label">Clients Served</div>
+                </div>
+                <div class="about__stat">
+                    <div class="about__stat-num">8</div>
+                    <div class="about__stat-label">Master Barbers</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Strip -->
+    <div class="gallery-strip">
+        <div class="gallery-strip__item">Concrete</div>
+        <div class="gallery-strip__item">Steel</div>
+        <div class="gallery-strip__item">Leather</div>
+        <div class="gallery-strip__item">Oak</div>
+        <div class="gallery-strip__item">Glass</div>
+        <div class="gallery-strip__item">Brass</div>
+    </div>
+
+    <!-- CTA Banner -->
+    <section class="cta-banner" id="cta">
+        <div class="cta-banner__bg-text">IRON</div>
+        <div class="cta-banner__content">
+            <h2>Ready to Get Sharp?</h2>
+            <p>Book your slot. Walk in. Walk out sharper than you arrived. That's the deal.</p>
+            <button class="btn btn--primary" id="openBookingModal">Book Appointment</button>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer__grid">
+            <div class="footer__col">
+                <span class="footer__brand">IRON & BLADE</span>
+                <p>Men's Grooming Parlour<br>Raw. Refined. Real.</p>
+            </div>
+            <div class="footer__col">
+                <h4>Hours</h4>
+                <p>
+                    Mon–Fri: 9am – 8pm<br>
+                    Saturday: 10am – 7pm<br>
+                    Sunday: 11am – 5pm
+                </p>
+            </div>
+            <div class="footer__col">
+                <h4>Location</h4>
+                <p>
+                    17 Concrete Lane<br>
+                    Shoreditch, London<br>
+                    E1 6AB
+                </p>
+            </div>
+            <div class="footer__col">
+                <h4>Contact</h4>
+                <p>
+                    <a href="tel:+442070000000">+44 20 7000 0000</a><br>
+                    <a href="mailto:cut@ironandblade.co">cut@ironandblade.co</a><br>
+                    <a href="#">Instagram</a> /
+                    <a href="#">WhatsApp</a>
+                </p>
+            </div>
+        </div>
+        <div class="footer__bottom">
+            &copy; 2026 IRON & BLADE. No &copy; actually — just respect the craft.
+        </div>
+    </footer>
+
+    <!-- Booking Modal -->
+    <div class="modal-overlay" id="bookingModal">
+        <div class="modal" id="modalInner">
+            <button class="modal__close" id="closeModal">&times;</button>
+            <!-- Form -->
+            <div id="modalForm">
+                <h3>Book Your Slot</h3>
+                <form id="bookingForm">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" placeholder="Your name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" placeholder="you@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="service">Service</label>
+                        <select id="service" required>
+                            <option value="">— Select —</option>
+                            <option>Signature Haircut — £48</option>
+                            <option>Hot Towel Shave — £42</option>
+                            <option>Beard Sculpting — £35</option>
+                            <option>Haircut + Beard Combo — £72</option>
+                            <option>Deep Cleansing Facial — £65</option>
+                            <option>Manicure & Pedicure — £55</option>
+                            <option>Grey Blending — £58</option>
+                            <option>The Full Works — £145</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="date">Preferred Date</label>
+                        <input type="date" id="date" required>
+                    </div>
+                    <button type="submit" class="btn btn--primary">Confirm Booking</button>
+                </form>
+            </div>
+            <!-- Success Message -->
+            <div class="modal__success" id="modalSuccess">
+                <span class="check-icon">✓</span>
+                <p>Booking request received.<br>We'll confirm via email within 2 hours.</p>
+                <button class="btn btn--outline" id="closeSuccess" style="margin-top:1.5rem;">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // === CUSTOM CURSOR ===
+            const cursor = document.getElementById('customCursor');
+            if (cursor && window.matchMedia('(min-width: 769px)').matches) {
+                let mouseX = 0,
+                    mouseY = 0;
+                let cursorX = 0,
+                    cursorY = 0;
+                const speed = 0.2;
+
+                document.addEventListener('mousemove', (e) => {
+                    mouseX = e.clientX;
+                    mouseY = e.clientY;
+                });
+
+                function animateCursor() {
+                    cursorX += (mouseX - cursorX) * speed;
+                    cursorY += (mouseY - cursorY) * speed;
+                    cursor.style.left = cursorX + 'px';
+                    cursor.style.top = cursorY + 'px';
+                    requestAnimationFrame(animateCursor);
+                }
+                animateCursor();
+
+                // Hover detection on interactive elements
+                const interactiveSelectors =
+                    'a, button, .btn, input, select, .service-card, .nav__toggle, .modal__close, .gallery-strip__item';
+                document.addEventListener('mouseover', (e) => {
+                    if (e.target.closest(interactiveSelectors)) {
+                        cursor.classList.add('hovering');
+                    }
+                });
+                document.addEventListener('mouseout', (e) => {
+                    if (e.target.closest(interactiveSelectors) && !e.relatedTarget?.closest(
+                            interactiveSelectors)) {
+                        cursor.classList.remove('hovering');
+                    }
+                });
+                document.addEventListener('mousedown', () => cursor.classList.add('clicking'));
+                document.addEventListener('mouseup', () => cursor.classList.remove('clicking'));
+            } else if (cursor) {
+                cursor.style.display = 'none';
+            }
+
+            // === NAVIGATION SCROLL EFFECT ===
+            const navbar = document.getElementById('navbar');
+            const navToggle = document.getElementById('navToggle');
+            const navLinks = document.getElementById('navLinks');
+
+            function updateNavOnScroll() {
+                if (window.scrollY > 60) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+            }
+            window.addEventListener('scroll', updateNavOnScroll, { passive: true });
+            updateNavOnScroll();
+
+            // Mobile menu toggle
+            navToggle.addEventListener('click', () => {
+                navToggle.classList.toggle('active');
+                navLinks.classList.toggle('open');
+            });
+
+            // Close mobile menu on link click
+            navLinks.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    navToggle.classList.remove('active');
+                    navLinks.classList.remove('open');
+                });
+            });
+
+            // === REVEAL ON SCROLL ===
+            const revealEls = document.querySelectorAll('.reveal-on-scroll');
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px 0px -60px 0px',
+                threshold: 0.15
+            };
+
+            const revealObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        revealObserver.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            revealEls.forEach(el => revealObserver.observe(el));
+
+            // === BOOKING MODAL ===
+            const modalOverlay = document.getElementById('bookingModal');
+            const modalForm = document.getElementById('modalForm');
+            const modalSuccess = document.getElementById('modalSuccess');
+            const bookingForm = document.getElementById('bookingForm');
+            const openModalBtn = document.getElementById('openBookingModal');
+            const closeModalBtn = document.getElementById('closeModal');
+            const closeSuccessBtn = document.getElementById('closeSuccess');
+            const ctaNavBtn = document.querySelector('.nav__link--cta');
+
+            function openModal() {
+                modalOverlay.classList.add('active');
+                modalForm.style.display = 'block';
+                modalSuccess.classList.remove('show');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeModal() {
+                modalOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+                // Reset after transition
+                setTimeout(() => {
+                    modalForm.style.display = 'block';
+                    modalSuccess.classList.remove('show');
+                    bookingForm.reset();
+                }, 300);
+            }
+
+            openModalBtn.addEventListener('click', openModal);
+            ctaNavBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                openModal();
+            });
+            closeModalBtn.addEventListener('click', closeModal);
+            closeSuccessBtn.addEventListener('click', closeModal);
+            modalOverlay.addEventListener('click', (e) => {
+                if (e.target === modalOverlay) closeModal();
+            });
+
+            // Form submission
+            bookingForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                // Simulate submission
+                modalForm.style.display = 'none';
+                modalSuccess.classList.add('show');
+            });
+
+            // Set min date to today
+            const dateInput = document.getElementById('date');
+            if (dateInput) {
+                const today = new Date().toISOString().split('T')[0];
+                dateInput.setAttribute('min', today);
+            }
+
+            // === KEYBOARD ESC TO CLOSE MODAL ===
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
+                    closeModal();
+                }
+            });
+
+            console.log('%c IRON & BLADE %c Men\'s Grooming Parlour ',
+                'background:#0a0a0a;color:#e8332c;font-size:1.5rem;font-weight:900;padding:8px 16px;font-family:monospace;',
+                'background:#e8332c;color:#fff;font-size:1rem;padding:8px 12px;font-family:monospace;');
+            console.log('%c Brutalist Web Design — Raw. Honest. Functional. ',
+                'color:#555;font-family:monospace;font-size:0.8rem;');
+        })();
+    </script>
+</body>
+</html>
