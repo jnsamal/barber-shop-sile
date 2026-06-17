@@ -34,7 +34,7 @@ A brutalist-style single-page website for a premium men's grooming parlour. Buil
 
 ### Prerequisites
 
-Nothing. Just a modern web browser.
+Just a modern web browser.
 
 ### Installation
 
